@@ -1,10 +1,9 @@
 # Tenant Discovery
+
 <details>
-    
 <summary>
     
 ## Enable 
-
 </summary>
 
 **Graph call**
@@ -26,7 +25,12 @@ Enable-MgBetaDirectoryTenantGovernanceSettingRelatedTenant
     
 </details>
 
+<details>
+<summary>
+    
 ## Read
+
+</summary>
 
 **Graph call**
 ```
@@ -45,9 +49,16 @@ Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
 Get-MgBetaDirectoryTenantGovernanceSetting
 ```
 
-# Tenant Governance Relationship
-## Create Governance policy template
-### Create role-assignable group
+</details>
+
+# Governance policy Template
+
+<details>
+<summary>
+    
+## Create role-assignable group
+
+</summary>
 
 **Graph call**
 ```
@@ -94,8 +105,15 @@ $group = New-MgGroup `
     -MailNickName "TGGlobalAdministrator" `
     -IsAssignableToRole:$true
 ```
+</details>
 
-### Create multi-tenant application
+<details>
+<summary>
+
+## Create multi-tenant application
+
+</summary>
+
 * Name: HCMultiTenantMonitor
 * Assign API (application) permissions
   * Directory.ReadWrite.All (19dbc75e-c2e2-444c-a770-ec69d8559fc7)
@@ -345,7 +363,15 @@ New-MgServicePrincipalAppRoleAssignment `
     -AppRoleId $policyReadAllAppRoleId
 ```
 
-### Create a Governance policy templates 
+</details>
+
+<details>
+<summary>
+
+## Create a Governance policy template
+
+</summary>
+
 * Assign Delegated administration
   * Global Administrator (Entra role) → TG-Global Administrator (Role-assignable group)
   * User Administrator (Entra role) → TG-User Administrator (Role-assignable group)
@@ -499,10 +525,161 @@ $template = Invoke-MgGraphRequest `
 $template | Select-Object id, displayName, description, version
 ```
 **Microsoft Graph PowerShell SDK cmdlets**
+```
+under construction
+```
+
+</details>
+
+# Tenant Governance Relationship
+
+<details>
+<summary>
+
+## Enable tenant to receive governance invitations.
+
+</summary>
+
+**Graph call**
+```
+PATCH https://graph.microsoft.com/beta/directory/tenantGovernance/settings
+Content-Type: application/json
+
+{
+  "canReceiveInvitations": true
+}
+```
+
+**Graph call using PowerShell**
+```
+Connect-MgGraph -Scopes "TenantGovernance-Setting.ReadWrite.All"
+
+$body = @{
+    canReceiveInvitations = $true
+} | ConvertTo-Json
+
+Invoke-MgGraphRequest `
+    -Method PATCH `
+    -Uri "https://graph.microsoft.com/beta/directory/tenantGovernance/settings" `
+    -Body $body `
+    -ContentType "application/json"
+```
+
+**Microsoft Graph PowerShell SDK cmdlets**
+```
+Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
+
+$params = @{
+	canReceiveInvitations = $true
+}
+
+Update-MgBetaDirectoryTenantGovernanceSetting -BodyParameter $params
+```
+
+</details>
+
+<details>
+<summary>
+
+## Send Invitation from Governed tenant
+
+</summary>
+
+**Graph call**
+```
+POST https://graph.microsoft.com/beta/directory/tenantGovernance/governanceInvitations
+Content-Type: application/json
+
+{
+  "governingTenantId": "aaaabbbb-0000-cccc-1111-dddd2222eeee"
+}
+```
+
+**Graph call using PowerShell**
+```
+```
+
+**Microsoft Graph PowerShell SDK cmdlets**
+```
+Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
+
+$params = @{
+	governingTenantId = "aaaabbbb-0000-cccc-1111-dddd2222eeee"
+}
+
+New-MgBetaDirectoryTenantGovernanceInvitation -BodyParameter $params
+```
+
+</details>
+
+<details>
+<summary>
+
+## Send Governance request from Governing tenant
+
+</summary>
+
+**Graph call**
+```
+POST https://graph.microsoft.com/beta/directory/tenantGovernance/governanceRequests
+Content-Type: application/json
+
+{
+  "governedTenantId": "bbbbcccc-1111-dddd-2222-eeee3333ffff",
+  "governancePolicyTemplate@odata.bind": "https://graph.microsoft.com/beta/directory/tenantGovernance/governancePolicyTemplates/d3d3d3d3-eeee-ffff-aaaa-b4b4b4b4b4b4"
+}
+```
+
+**Graph call using PowerShell**
+```
+```
+
+**Microsoft Graph PowerShell SDK cmdlets**
+```
+Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
+
+$params = @{
+	governedTenantId = "bbbbcccc-1111-dddd-2222-eeee3333ffff"
+	"governancePolicyTemplate@odata.bind" = "https://graph.microsoft.com/beta/directory/tenantGovernance/governancePolicyTemplates/d3d3d3d3-eeee-ffff-aaaa-b4b4b4b4b4b4"
+}
+
+New-MgBetaDirectoryTenantGovernanceRequest -BodyParameter $params
+```
+
+</details>
+
+<details>
+<summary>
+
+## Accept Governance request from Governed tenant
+
+</summary>
+
+**Graph call**
+```
+PATCH https://graph.microsoft.com/beta/directory/tenantGovernance/governanceRequests/aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb
+Content-Type: application/json
+
+{
+  "status": "accepted"
+}
+```
+
+**Graph call using PowerShell**
+```
+```
+
+**Microsoft Graph PowerShell SDK cmdlets**
+```
+Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
+
+$params = @{
+	status = "accepted"
+}
+
+Update-MgBetaDirectoryTenantGovernanceRequest -GovernanceRequestId $governanceRequestId -BodyParameter $params
+```
+
+</details>
 
 
-Graph call
-
-Graph call using PowerShell
-
-Microsoft Graph PowerShell SDK cmdlets
