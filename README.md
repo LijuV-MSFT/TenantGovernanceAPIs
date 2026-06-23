@@ -1,5 +1,11 @@
 # Tenant Discovery
+<details>
+    
+<summary>
+    
 ## Enable 
+
+</summary>
 
 **Graph call**
 ```
@@ -17,6 +23,8 @@ Invoke-MgGraphRequest `
 Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
 Enable-MgBetaDirectoryTenantGovernanceSettingRelatedTenant
 ```
+    
+</details>
 
 ## Read
 
