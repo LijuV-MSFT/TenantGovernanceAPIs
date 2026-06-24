@@ -1302,22 +1302,211 @@ New-MgBetaDirectoryTenantGovernanceRequest -BodyParameter $params
 <details>
 <summary>
 
-## Accept Governance request from Governed tenant
+## List Governance request in Governed tenant
 
 </summary>
 
 **Graph call**
+
+Request
+```
+GET https://graph.microsoft.com/beta/directory/tenantGovernance/governanceRequests?$filter=status eq 'pending' and governingTenantId eq 'bbbbcccc-1111-dddd-2222-eeee3333ffff'
+```
+
+Response
+```
+{
+    "@odata.context": "https://graph.microsoft.com/beta/$metadata#directory/tenantGovernance/governanceRequests",
+    "@microsoft.graph.tips": "Use $select to choose only the properties your app needs, as this can lead to performance improvements. For example: GET directory/tenantGovernance/governanceRequests?$select=expirationDateTime,governedTenantId",
+    "value": [
+        {
+            "id": "44b02e44-eafc-46cb-8798-a49873039c5a",
+            "governingTenantId": "<tenant_id>",
+            "governingTenantName": "<tenant_name>",
+            "governedTenantId": "<tenant_id>",
+            "governedTenantName": "<tenant_name>",
+            "expirationDateTime": "2026-07-08T20:19:21.4287835Z",
+            "requestDateTime": "2026-06-24T20:19:21.4287831Z",
+            "status": "pending",
+            "policySnapshot": {
+                "policyId": "b37cfdeb-d8e2-404a-8a9d-47cd50229ed6",
+                "version": 1,
+                "multiTenantApplicationsToProvision": [
+                    {
+                        "appId": "ac3a269f-f7c9-4827-8fb7-3906798a335a",
+                        "displayName": "TGMultiTenantMonitor",
+                        "requiredResourceAccesses": [
+                            {
+                                "resourceAppId": "00000003-0000-0000-c000-000000000000",
+                                "permissions": [
+                                    {
+                                        "id": "19dbc75e-c2e2-444c-a770-ec69d8559fc7",
+                                        "name": "Directory.ReadWrite.All",
+                                        "type": "role"
+                                    },
+                                    {
+                                        "id": "246dd0d5-5bd0-4def-940b-0421030a5b68",
+                                        "name": "Policy.Read.All",
+                                        "type": "role"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                "delegatedAdministrationRoleAssignments": [
+                    {
+                        "groupId": "551da5d3-a9e8-49e3-b137-4959c46bd360",
+                        "groupDisplayName": "TG-Global Administrator",
+                        "roleTemplates": [
+                            {
+                                "id": "62e90394-69f5-4237-9190-012177145e10",
+                                "name": "Global Administrator"
+                            }
+                        ]
+                    },
+                    {
+                        "groupId": "bc6f6f2a-6e5c-4f30-bfb5-4578f9fa8e47",
+                        "groupDisplayName": "TG-User Administrator",
+                        "roleTemplates": [
+                            {
+                                "id": "fe930be7-5e62-47db-91af-98c3a49a38b1",
+                                "name": "User Administrator"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}
+```
+
+**Graph call using PowerShell**
+```
+Connect-MgGraph -Scopes "TenantGovernance-Request.Read.All"
+
+$governingTenantId = "bbbbcccc-1111-dddd-2222-eeee3333ffff"
+$status = "pending"
+
+$governanceRequests = Invoke-MgGraphRequest `
+    -Method GET `
+    -Uri "https://graph.microsoft.com/beta/directory/tenantGovernance/governanceRequests?`$filter=status eq '$status' and governingTenantId eq '$governingTenantId'"
+```
+
+**Microsoft Graph PowerShell SDK cmdlets**
+```
+Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
+
+Connect-MgGraph -Scopes "TenantGovernance-Request.Read.All"
+
+$governingTenantId = "bbbbcccc-1111-dddd-2222-eeee3333ffff"
+$status = "pending"
+
+$governanceRequests = Get-MgBetaDirectoryTenantGovernanceGovernanceRequest `
+    -Filter "status eq '$status' and governingTenantId eq '$governingTenantId'"
+```
+
+</details>
+
+<details>
+<summary>
+
+## Accept Governance request in Governed tenant
+
+</summary>
+
+**Graph call**
+
+Request
 ```
 PATCH https://graph.microsoft.com/beta/directory/tenantGovernance/governanceRequests/aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb
-Content-Type: application/json
 
 {
   "status": "accepted"
 }
 ```
 
+Response
+```
+{
+    "@context": "https://graph.microsoft.com/beta/$metadata#directory/tenantGovernance/governanceRequests/$entity",
+    "id": "44b02e44-eafc-46cb-8798-a49873039c5a",
+    "governingTenantId": "<tenant_id>",
+    "governingTenantName": "<tenant_name>",
+    "governedTenantId": "<tenant_id>",
+    "governedTenantName": "<tenant_name>",
+    "expirationDateTime": "2026-07-08T20:19:21.4287835Z",
+    "requestDateTime": "2026-06-24T20:19:21.4287831Z",
+    "status": "accepted",
+    "policySnapshot": {
+        "policyId": "b37cfdeb-d8e2-404a-8a9d-47cd50229ed6",
+        "version": 1,
+        "multiTenantApplicationsToProvision": [
+            {
+                "appId": "ac3a269f-f7c9-4827-8fb7-3906798a335a",
+                "displayName": "TGMultiTenantMonitor",
+                "requiredResourceAccesses": [
+                    {
+                        "resourceAppId": "00000003-0000-0000-c000-000000000000",
+                        "permissions": [
+                            {
+                                "id": "19dbc75e-c2e2-444c-a770-ec69d8559fc7",
+                                "name": "Directory.ReadWrite.All",
+                                "type": "role"
+                            },
+                            {
+                                "id": "246dd0d5-5bd0-4def-940b-0421030a5b68",
+                                "name": "Policy.Read.All",
+                                "type": "role"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ],
+        "delegatedAdministrationRoleAssignments": [
+            {
+                "groupDisplayName": "TG-Global Administrator",
+                "groupId": "551da5d3-a9e8-49e3-b137-4959c46bd360",
+                "roleTemplates": [
+                    {
+                        "id": "62e90394-69f5-4237-9190-012177145e10",
+                        "name": "Global Administrator"
+                    }
+                ]
+            },
+            {
+                "groupDisplayName": "TG-User Administrator",
+                "groupId": "bc6f6f2a-6e5c-4f30-bfb5-4578f9fa8e47",
+                "roleTemplates": [
+                    {
+                        "id": "fe930be7-5e62-47db-91af-98c3a49a38b1",
+                        "name": "User Administrator"
+                    }
+                ]
+            }
+        ]
+    }
+}
+```
+
 **Graph call using PowerShell**
 ```
+Connect-MgGraph -Scopes "TenantGovernance-Request.ReadWrite.All"
+
+$governanceRequestId = "aaaaaaaa-0000-1111-2222-bbbbbbbbbbbb"
+$status = "accepted"
+
+$body = @{
+    status = $status
+} | ConvertTo-Json
+
+$governanceRequest = Invoke-MgGraphRequest `
+    -Method PATCH `
+    -Uri "https://graph.microsoft.com/beta/directory/tenantGovernance/governanceRequests/$governanceRequestId" `
+    -Body $body `
+    -ContentType "application/json"
 ```
 
 **Microsoft Graph PowerShell SDK cmdlets**
