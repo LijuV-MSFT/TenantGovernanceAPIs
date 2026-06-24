@@ -7,8 +7,14 @@
 </summary>
 
 **Graph call**
+
+Request
 ```
 POST https://graph.microsoft.com/beta/directory/tenantGovernance/settings/enableRelatedTenants
+```
+Response
+```
+HTTP/1.1 204 No Content
 ```
 **Graph call using PowerShell**
 ```
@@ -33,9 +39,21 @@ Enable-MgBetaDirectoryTenantGovernanceSettingRelatedTenant
 </summary>
 
 **Graph call**
+
+Request
 ```
 GET https://graph.microsoft.com/beta/directory/tenantGovernance/settings
 ```
+Response
+```
+{
+    "@odata.context": "https://graph.microsoft.com/beta/$metadata#directory/tenantGovernance/settings/$entity",
+    "@microsoft.graph.tips": "Use $select to choose only the properties your app needs, as this can lead to performance improvements. For example: GET directory/tenantGovernance/settings?$select=canReceiveInvitations,isRelatedTenantsEnabled",
+    "isRelatedTenantsEnabled": true,
+    "canReceiveInvitations": true
+}
+```
+
 **Graph call using PowerShell**
 ```
 Connect-MgGraph -Scopes "TenantGovernance-Setting.Read.All"
@@ -61,6 +79,8 @@ Get-MgBetaDirectoryTenantGovernanceSetting
 </summary>
 
 **Graph call**
+
+Request
 ```
 POST https://graph.microsoft.com/v1.0/groups
 {
@@ -71,6 +91,10 @@ POST https://graph.microsoft.com/v1.0/groups
     "mailNickname": "TGGlobalAdministrator",
     "securityEnabled": true
 }
+```
+Response
+```
+HTTP/1.1 201 Created
 ```
 **Graph call using PowerShell**
 ```
@@ -114,7 +138,7 @@ $group = New-MgGroup `
 
 </summary>
 
-* Name: HCMultiTenantMonitor
+* Name: MultiTenantMonitor
 * Assign API (application) permissions
   * Directory.ReadWrite.All (19dbc75e-c2e2-444c-a770-ec69d8559fc7)
   * Policy.Read.All (246dd0d5-5bd0-4def-940b-0421030a5b68)
@@ -124,12 +148,12 @@ $group = New-MgGroup `
 **Graph call**
 
 **1 - Create the multi-tenant application registration**
+
+Request
 ```
 POST https://graph.microsoft.com/v1.0/applications
-Content-Type: application/json
-Authorization: Bearer <access_token>
 {
-  "displayName": "HCMultiTenantMonitor",
+  "displayName": "TGMultiTenantMonitor",
   "signInAudience": "AzureADMultipleOrgs",
   "requiredResourceAccess": [
     {
@@ -148,26 +172,192 @@ Authorization: Bearer <access_token>
   ]
 }
 ```
+Response
+```
+HTTP/1.1 201 Created
+
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#applications/$entity",
+    "id": "856fffc7-df69-4838-8d5d-9fe6d7c79ace",
+    "deletedDateTime": null,
+    "appId": "ac3a269f-f7c9-4827-8fb7-3906798a335a",
+    "applicationTemplateId": null,
+    "disabledByMicrosoftStatus": null,
+    "createdByAppId": "de8bc8b5-d9f9-48b1-a8ad-b748da725064",
+    "createdDateTime": "2026-06-24T17:22:38.5362737Z",
+    "displayName": "TGMultiTenantMonitor",
+    "description": null,
+    "groupMembershipClaims": null,
+    "identifierUris": [],
+    "isDeviceOnlyAuthSupported": null,
+    "isDisabled": null,
+    "isFallbackPublicClient": null,
+    "nativeAuthenticationApisEnabled": null,
+    "notes": null,
+    "publisherDomain": "MngEnv688692.onmicrosoft.com",
+    "serviceManagementReference": null,
+    "signInAudience": "AzureADMultipleOrgs",
+    "tags": [],
+    "tokenEncryptionKeyId": null,
+    "uniqueName": null,
+    "samlMetadataUrl": null,
+    "defaultRedirectUri": null,
+    "certification": null,
+    "optionalClaims": null,
+    "servicePrincipalLockConfiguration": null,
+    "requestSignatureVerification": null,
+    "addIns": [],
+    "api": {
+        "acceptMappedClaims": null,
+        "knownClientApplications": [],
+        "requestedAccessTokenVersion": null,
+        "oauth2PermissionScopes": [],
+        "preAuthorizedApplications": []
+    },
+    "appRoles": [],
+    "info": {
+        "logoUrl": null,
+        "marketingUrl": null,
+        "privacyStatementUrl": null,
+        "supportUrl": null,
+        "termsOfServiceUrl": null
+    },
+    "keyCredentials": [],
+    "parentalControlSettings": {
+        "countriesBlockedForMinors": [],
+        "legalAgeGroupRule": "Allow"
+    },
+    "passwordCredentials": [],
+    "publicClient": {
+        "redirectUris": []
+    },
+    "requiredResourceAccess": [
+        {
+            "resourceAppId": "00000003-0000-0000-c000-000000000000",
+            "resourceAccess": [
+                {
+                    "id": "19dbc75e-c2e2-444c-a770-ec69d8559fc7",
+                    "type": "Role"
+                },
+                {
+                    "id": "246dd0d5-5bd0-4def-940b-0421030a5b68",
+                    "type": "Role"
+                }
+            ]
+        }
+    ],
+    "verifiedPublisher": {
+        "displayName": null,
+        "verifiedPublisherId": null,
+        "addedDateTime": null
+    },
+    "web": {
+        "homePageUrl": null,
+        "logoutUrl": null,
+        "redirectUris": [],
+        "implicitGrantSettings": {
+            "enableAccessTokenIssuance": false,
+            "enableIdTokenIssuance": false
+        },
+        "redirectUriSettings": []
+    },
+    "spa": {
+        "redirectUris": []
+    }
+}
+```
 **2 — Create the service principal in the home tenant**
+
+Request
 ```
 POST https://graph.microsoft.com/v1.0/servicePrincipals
-Content-Type: application/json
-Authorization: Bearer <access_token>
 
 {
   "appId": "<appId-from-created-application>"
 }
 ```
-**3 — Get the Microsoft Graph service principal**
+Response
 ```
-GET https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '00000003-0000-0000-c000-000000000000'&$select=id,displayName,appId,appRoles
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#servicePrincipals/$entity",
+    "id": "9c1af20a-ce5c-4213-9f57-1162eb422287",
+    "deletedDateTime": null,
+    "accountEnabled": true,
+    "alternativeNames": [],
+    "appDisplayName": "TGMultiTenantMonitor",
+    "appDescription": null,
+    "appId": "ac3a269f-f7c9-4827-8fb7-3906798a335a",
+    "applicationTemplateId": null,
+    "appOwnerOrganizationId": "b894c7fd-69c8-4c85-8113-9c1104406dc3",
+    "appRoleAssignmentRequired": false,
+    "createdByAppId": "de8bc8b5-d9f9-48b1-a8ad-b748da725064",
+    "createdDateTime": null,
+    "description": null,
+    "disabledByMicrosoftStatus": null,
+    "displayName": "TGMultiTenantMonitor",
+    "homepage": null,
+    "isDisabled": null,
+    "loginUrl": null,
+    "logoutUrl": null,
+    "notes": null,
+    "notificationEmailAddresses": [],
+    "preferredSingleSignOnMode": null,
+    "preferredTokenSigningKeyThumbprint": null,
+    "replyUrls": [],
+    "servicePrincipalNames": [
+        "ac3a269f-f7c9-4827-8fb7-3906798a335a"
+    ],
+    "servicePrincipalType": "Application",
+    "signInAudience": "AzureADMultipleOrgs",
+    "tags": [],
+    "tokenEncryptionKeyId": null,
+    "samlSingleSignOnSettings": null,
+    "addIns": [],
+    "appRoles": [],
+    "info": {
+        "logoUrl": null,
+        "marketingUrl": null,
+        "privacyStatementUrl": null,
+        "supportUrl": null,
+        "termsOfServiceUrl": null
+    },
+    "keyCredentials": [],
+    "oauth2PermissionScopes": [],
+    "passwordCredentials": [],
+    "resourceSpecificApplicationPermissions": [],
+    "verifiedPublisher": {
+        "displayName": null,
+        "verifiedPublisherId": null,
+        "addedDateTime": null
+    }
+}
+```
+
+**3 — Get the Microsoft Graph service principal**
+
+Request
+```
+GET https://graph.microsoft.com/v1.0/servicePrincipals?$filter=appId eq '00000003-0000-0000-c000-000000000000'&$select=id,displayName,appId
 Authorization: Bearer <access_token>
+```
+Response
+```
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#servicePrincipals(id,displayName,appId)",
+    "value": [
+        {
+            "id": "94b568db-9c17-4d88-a762-ca99dffc5bad",
+            "displayName": "Microsoft Graph",
+            "appId": "00000003-0000-0000-c000-000000000000"
+        }
+    ]
+}
 ```
 **4 — Grant admin consent for Directory.ReadWrite.All**
+
+Request
 ```
 POST https://graph.microsoft.com/v1.0/servicePrincipals/<client-service-principal-object-id>/appRoleAssignments
-Content-Type: application/json
-Authorization: Bearer <access_token>
 
 {
   "principalId": "<client-service-principal-object-id>",
@@ -175,11 +365,26 @@ Authorization: Bearer <access_token>
   "appRoleId": "19dbc75e-c2e2-444c-a770-ec69d8559fc7"
 }
 ```
+Response
+```
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#appRoleAssignments/$entity",
+    "id": "CvIanFzOE0KfVxFi60Iih4rxo3O5LgFBr8RATDWsxME",
+    "deletedDateTime": null,
+    "appRoleId": "19dbc75e-c2e2-444c-a770-ec69d8559fc7",
+    "createdDateTime": "2026-06-24T17:38:43.9742561Z",
+    "principalDisplayName": "TGMultiTenantMonitor",
+    "principalId": "9c1af20a-ce5c-4213-9f57-1162eb422287",
+    "principalType": "ServicePrincipal",
+    "resourceDisplayName": "Microsoft Graph",
+    "resourceId": "94b568db-9c17-4d88-a762-ca99dffc5bad"
+}
+```
 **5 — Grant admin consent for Policy.Read.All**
+
+Request
 ```
 POST https://graph.microsoft.com/v1.0/servicePrincipals/<client-service-principal-object-id>/appRoleAssignments
-Content-Type: application/json
-Authorization: Bearer <access_token>
 
 {
   "principalId": "<client-service-principal-object-id>",
@@ -187,30 +392,91 @@ Authorization: Bearer <access_token>
   "appRoleId": "246dd0d5-5bd0-4def-940b-0421030a5b68"
 }
 ```
+Response
+```
+{
+    "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#appRoleAssignments/$entity",
+    "id": "CvIanFzOE0KfVxFi60Iih_roYR6wZORDiiH5mUEq78c",
+    "deletedDateTime": null,
+    "appRoleId": "246dd0d5-5bd0-4def-940b-0421030a5b68",
+    "createdDateTime": "2026-06-24T17:39:28.836073Z",
+    "principalDisplayName": "TGMultiTenantMonitor",
+    "principalId": "9c1af20a-ce5c-4213-9f57-1162eb422287",
+    "principalType": "ServicePrincipal",
+    "resourceDisplayName": "Microsoft Graph",
+    "resourceId": "94b568db-9c17-4d88-a762-ca99dffc5bad"
+}
+```
 **Graph call using PowerShell**
 ```
-Connect-MgGraph -Scopes `
-    "Application.ReadWrite.All", `
-    "AppRoleAssignment.ReadWrite.All", `
-    "Application.Read.All"
+# ================================
+# CONFIGURATION / VARIABLES
+# ================================
 
-# ================================
-# Constants
-# ================================
+# Pipeline-provided authentication values
+$tenantId     = $env:TENANT_ID
+$clientId     = $env:CLIENT_ID
+$clientSecret = $env:CLIENT_SECRET
+
+# App registration to create
+$appDisplayName = "TGMultiTenantMonitor"
+$signInAudience = "AzureADMultipleOrgs"
+
+# Microsoft Graph resource app ID
 $graphAppId = "00000003-0000-0000-c000-000000000000"
 
-$directoryReadWriteAllAppRoleId = "19dbc75e-c2e2-444c-a770-ec69d8559fc7"
-$policyReadAllAppRoleId         = "246dd0d5-5bd0-4def-940b-0421030a5b68"
+# Microsoft Graph application permission IDs
+$directoryReadWriteAllAppRoleId = "19dbc75e-c2e2-444c-a770-ec69d8559fc7" # Directory.ReadWrite.All
+$policyReadAllAppRoleId         = "246dd0d5-5bd0-4def-940b-0421030a5b68" # Policy.Read.All
+
+# Graph endpoints
+$applicationsUri      = "https://graph.microsoft.com/v1.0/applications"
+$servicePrincipalsUri = "https://graph.microsoft.com/v1.0/servicePrincipals"
 
 # ================================
-# 1. Create multi-tenant app registration
+# VALIDATE REQUIRED VARIABLES
 # ================================
+
+if ([string]::IsNullOrWhiteSpace($tenantId)) {
+    throw "TENANT_ID environment variable is missing."
+}
+
+if ([string]::IsNullOrWhiteSpace($clientId)) {
+    throw "CLIENT_ID environment variable is missing."
+}
+
+if ([string]::IsNullOrWhiteSpace($clientSecret)) {
+    throw "CLIENT_SECRET environment variable is missing."
+}
+
+# ================================
+# CONNECT TO MICROSOFT GRAPH
+# ================================
+
+$secureClientSecret = ConvertTo-SecureString $clientSecret -AsPlainText -Force
+
+$clientSecretCredential = New-Object System.Management.Automation.PSCredential(
+    $clientId,
+    $secureClientSecret
+)
+
+Connect-MgGraph `
+    -TenantId $tenantId `
+    -ClientSecretCredential $clientSecretCredential `
+    -NoWelcome
+
+# ================================
+# 1. CREATE MULTI-TENANT APP REGISTRATION
+# ================================
+
 $appBody = @{
-    displayName    = "HCMultiTenantMonitor"
-    signInAudience = "AzureADMultipleOrgs"
+    displayName    = $appDisplayName
+    signInAudience = $signInAudience
+
     requiredResourceAccess = @(
         @{
-            resourceAppId  = $graphAppId
+            resourceAppId = $graphAppId
+
             resourceAccess = @(
                 @{
                     id   = $directoryReadWriteAllAppRoleId
@@ -227,92 +493,130 @@ $appBody = @{
 
 $app = Invoke-MgGraphRequest `
     -Method POST `
-    -Uri "https://graph.microsoft.com/v1.0/applications" `
+    -Uri $applicationsUri `
     -Body $appBody `
     -ContentType "application/json"
 
-$app | Select-Object id, appId, displayName, signInAudience
+if (-not $app.id -or -not $app.appId) {
+    throw "Application registration creation failed."
+}
 
 # ================================
-# 2. Create service principal for the app
+# 2. CREATE SERVICE PRINCIPAL FOR THE APP
 # ================================
+
 $spBody = @{
     appId = $app.appId
 } | ConvertTo-Json
 
 $clientSp = Invoke-MgGraphRequest `
     -Method POST `
-    -Uri "https://graph.microsoft.com/v1.0/servicePrincipals" `
+    -Uri $servicePrincipalsUri `
     -Body $spBody `
     -ContentType "application/json"
 
-$clientSp | Select-Object id, appId, displayName
+if (-not $clientSp.id) {
+    throw "Service principal creation failed."
+}
 
 # ================================
-# 3. Get Microsoft Graph service principal
+# 3. GET MICROSOFT GRAPH SERVICE PRINCIPAL
 # ================================
+
+$graphSpUri = "$servicePrincipalsUri?`$filter=appId eq '$graphAppId'&`$select=id,displayName,appId,appRoles"
+
 $graphSpResponse = Invoke-MgGraphRequest `
     -Method GET `
-    -Uri "https://graph.microsoft.com/v1.0/servicePrincipals?`$filter=appId eq '$graphAppId'&`$select=id,displayName,appId,appRoles"
+    -Uri $graphSpUri
 
 $graphSp = $graphSpResponse.value[0]
 
-$graphSp | Select-Object id, displayName, appId
+if (-not $graphSp.id) {
+    throw "Microsoft Graph service principal was not found."
+}
 
 # ================================
-# 4. Grant admin consent - Directory.ReadWrite.All
+# 4. GRANT ADMIN CONSENT - Directory.ReadWrite.All
 # ================================
+
 $directoryGrantBody = @{
     principalId = $clientSp.id
     resourceId  = $graphSp.id
     appRoleId   = $directoryReadWriteAllAppRoleId
 } | ConvertTo-Json
 
-Invoke-MgGraphRequest `
+$directoryGrant = Invoke-MgGraphRequest `
     -Method POST `
-    -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$($clientSp.id)/appRoleAssignments" `
+    -Uri "$servicePrincipalsUri/$($clientSp.id)/appRoleAssignments" `
     -Body $directoryGrantBody `
     -ContentType "application/json"
 
+if (-not $directoryGrant.id) {
+    throw "Admin consent grant failed for Directory.ReadWrite.All."
+}
+
 # ================================
-# 5. Grant admin consent - Policy.Read.All
+# 5. GRANT ADMIN CONSENT - Policy.Read.All
 # ================================
+
 $policyGrantBody = @{
     principalId = $clientSp.id
     resourceId  = $graphSp.id
     appRoleId   = $policyReadAllAppRoleId
 } | ConvertTo-Json
 
-Invoke-MgGraphRequest `
+$policyGrant = Invoke-MgGraphRequest `
     -Method POST `
-    -Uri "https://graph.microsoft.com/v1.0/servicePrincipals/$($clientSp.id)/appRoleAssignments" `
+    -Uri "$servicePrincipalsUri/$($clientSp.id)/appRoleAssignments" `
     -Body $policyGrantBody `
     -ContentType "application/json"
+
+if (-not $policyGrant.id) {
+    throw "Admin consent grant failed for Policy.Read.All."
+}
+
+# ================================
+# 6. DISCONNECT
+# ================================
+
+Disconnect-MgGraph | Out-Null
 ```
 **Microsoft Graph PowerShell SDK cmdlets**
 ```
+# ================================
+# CONFIGURATION / VARIABLES
+# ================================
+
+# App registration to create
+$appDisplayName = "TGMultiTenantMonitor"
+$signInAudience = "AzureADMultipleOrgs"
+
+# Microsoft Graph resource app ID
+$graphAppId = "00000003-0000-0000-c000-000000000000"
+
+# Microsoft Graph application permission IDs
+$directoryReadWriteAllAppRoleId = "19dbc75e-c2e2-444c-a770-ec69d8559fc7" # Directory.ReadWrite.All
+$policyReadAllAppRoleId         = "246dd0d5-5bd0-4def-940b-0421030a5b68" # Policy.Read.All
+
+# ================================
+# CONNECT TO MICROSOFT GRAPH
+# ================================
+
 Connect-MgGraph -Scopes `
     "Application.ReadWrite.All", `
     "AppRoleAssignment.ReadWrite.All", `
     "Application.Read.All"
 
 # ================================
-# Constants
+# 1. CREATE MULTI-TENANT APPLICATION REGISTRATION
 # ================================
-$graphAppId = "00000003-0000-0000-c000-000000000000"
 
-$directoryReadWriteAllAppRoleId = "19dbc75e-c2e2-444c-a770-ec69d8559fc7"
-$policyReadAllAppRoleId         = "246dd0d5-5bd0-4def-940b-0421030a5b68"
-
-# ================================
-# 1. Create multi-tenant application registration
-# ================================
 $app = New-MgApplication `
-    -DisplayName "HCMultiTenantMonitor" `
-    -SignInAudience "AzureADMultipleOrgs" `
+    -DisplayName $appDisplayName `
+    -SignInAudience $signInAudience `
     -RequiredResourceAccess @(
         @{
-            ResourceAppId = $graphAppId
+            ResourceAppId  = $graphAppId
             ResourceAccess = @(
                 @{
                     Id   = $directoryReadWriteAllAppRoleId
@@ -326,27 +630,24 @@ $app = New-MgApplication `
         }
     )
 
-$app | Select-Object Id, AppId, DisplayName, SignInAudience
+# ================================
+# 2. CREATE SERVICE PRINCIPAL
+# ================================
 
-# ================================
-# 2. Create service principal
-# ================================
 $clientSp = New-MgServicePrincipal -AppId $app.AppId
 
-$clientSp | Select-Object Id, AppId, DisplayName
+# ================================
+# 3. GET MICROSOFT GRAPH SERVICE PRINCIPAL
+# ================================
 
-# ================================
-# 3. Get Microsoft Graph service principal
-# ================================
 $graphSp = Get-MgServicePrincipal `
     -Filter "appId eq '$graphAppId'" `
     -Property "id,displayName,appId,appRoles"
 
-$graphSp | Select-Object Id, DisplayName, AppId
+# ================================
+# 4. GRANT ADMIN CONSENT - Directory.ReadWrite.All
+# ================================
 
-# ================================
-# 4. Grant admin consent - Directory.ReadWrite.All
-# ================================
 New-MgServicePrincipalAppRoleAssignment `
     -ServicePrincipalId $clientSp.Id `
     -PrincipalId $clientSp.Id `
@@ -354,13 +655,20 @@ New-MgServicePrincipalAppRoleAssignment `
     -AppRoleId $directoryReadWriteAllAppRoleId
 
 # ================================
-# 5. Grant admin consent - Policy.Read.All
+# 5. GRANT ADMIN CONSENT - Policy.Read.All
 # ================================
+
 New-MgServicePrincipalAppRoleAssignment `
     -ServicePrincipalId $clientSp.Id `
     -PrincipalId $clientSp.Id `
     -ResourceId $graphSp.Id `
     -AppRoleId $policyReadAllAppRoleId
+
+# ================================
+# 6. DISCONNECT
+# ================================
+
+Disconnect-MgGraph | Out-Null
 ```
 
 </details>
@@ -376,22 +684,27 @@ New-MgServicePrincipalAppRoleAssignment `
   * Global Administrator (Entra role) → TG-Global Administrator (Role-assignable group)
   * User Administrator (Entra role) → TG-User Administrator (Role-assignable group)
 * Select Multitenant application
-  * HCMultiTenantMonitor
+  * TGMultiTenantMonitor
+
+<details>
+<summary>
 
 **Graph call**
+
+</summary>
+
+Request
 ```
 POST https://graph.microsoft.com/beta/directory/tenantGovernance/governancePolicyTemplates
-Content-Type: application/json
-Authorization: Bearer <token>
 
 {
-  "displayName": "HCMultiTenantMonitor Policy Template",
-  "description": "Delegates Global Administrator and User Administrator through role-assignable groups and provisions the HCMultiTenantMonitor multi-tenant application.",
+  "displayName": "TGMultiTenantMonitor Policy Template",
+  "description": "Delegates Global Administrator and User Administrator through role-assignable groups and provisions the TGMultiTenantMonitor multi-tenant application.",
   "multiTenantApplicationsToProvision": [
     {
-      "appId": "<HCMultiTenantMonitor-appId-client-id>",
-      "objectId": "<HCMultiTenantMonitor-service-principal-object-id-in-governing-tenant>",
-      "displayName": "HCMultiTenantMonitor",
+      "appId": "<TGMultiTenantMonitor-appId-client-id>",
+      "objectId": "<TGMultiTenantMonitor-service-principal-object-id-in-governing-tenant>",
+      "displayName": "TGMultiTenantMonitor",
       "requiredResourceAccesses": [
         {
           "resourceAppId": "00000003-0000-0000-c000-000000000000",
@@ -437,38 +750,131 @@ Authorization: Bearer <token>
   ]
 }
 ```
+Response
+```
+{
+    "@context": "https://graph.microsoft.com/beta/$metadata#directory/tenantGovernance/governancePolicyTemplates/$entity",
+    "id": "b37cfdeb-d8e2-404a-8a9d-47cd50229ed6",
+    "displayName": "TGMultiTenantMonitor Policy Template",
+    "description": "Delegates Global Administrator and User Administrator through role-assignable groups and provisions the TGMultiTenantMonitor multi-tenant application.",
+    "createdDateTime": "2026-06-24T18:59:17.7913078Z",
+    "lastModifiedDateTime": "2026-06-24T18:59:17.7913085Z",
+    "version": "1",
+    "multiTenantApplicationsToProvision": [
+        {
+            "appId": "ac3a269f-f7c9-4827-8fb7-3906798a335a",
+            "objectId": "856fffc7-df69-4838-8d5d-9fe6d7c79ace",
+            "displayName": "TGMultiTenantMonitor",
+            "requiredResourceAccesses": [
+                {
+                    "resourceAppId": "00000003-0000-0000-c000-000000000000",
+                    "permissions": [
+                        {
+                            "id": "19dbc75e-c2e2-444c-a770-ec69d8559fc7",
+                            "name": "Directory.ReadWrite.All",
+                            "type": "role"
+                        },
+                        {
+                            "id": "246dd0d5-5bd0-4def-940b-0421030a5b68",
+                            "name": "Policy.Read.All",
+                            "type": "role"
+                        }
+                    ]
+                }
+            ]
+        }
+    ],
+    "delegatedAdministrationRoleAssignments": [
+        {
+            "groupDisplayName": "TG-Global Administrator",
+            "roleTemplates": [
+                {
+                    "id": "62e90394-69f5-4237-9190-012177145e10",
+                    "name": "Global Administrator"
+                }
+            ],
+            "group": {
+                "id": "551da5d3-a9e8-49e3-b137-4959c46bd360"
+            }
+        },
+        {
+            "groupDisplayName": "TG-User Administrator",
+            "roleTemplates": [
+                {
+                    "id": "fe930be7-5e62-47db-91af-98c3a49a38b1",
+                    "name": "User Administrator"
+                }
+            ],
+            "group": {
+                "id": "bc6f6f2a-6e5c-4f30-bfb5-4578f9fa8e47"
+            }
+        }
+    ]
+}
+```
+
+</details>
+
 **Graph call using PowerShell**
 ```
-Connect-MgGraph -Scopes `
-    "TenantGovernance-PolicyTemplate.ReadWrite.All", `
-    "Group.Read.All", `
-    "Application.Read.All", `
+# ================================
+# CONFIGURATION / VARIABLES
+# ================================
+
+# Graph scopes required to create the governance policy template
+$connectScopes = @(
+    "TenantGovernance-PolicyTemplate.ReadWrite.All",
+    "Group.Read.All",
+    "Application.Read.All",
     "Directory.Read.All"
-```
-**Resolve groups, app, and service principal**
-```
+)
+
+# Governance policy template
+$policyTemplateDisplayName = "TGMultiTenantMonitor Policy Template"
+$policyTemplateDescription = "Delegates Global Administrator and User Administrator through role-assignable groups and provisions the TGMultiTenantMonitor multi-tenant application."
+
 # Microsoft Graph resource app ID
 $graphAppId = "00000003-0000-0000-c000-000000000000"
 
 # Microsoft Graph application permission IDs
-$directoryReadWriteAllId = "19dbc75e-c2e2-444c-a770-ec69d8559fc7"
-$policyReadAllId         = "246dd0d5-5bd0-4def-940b-0421030a5b68"
+$directoryReadWriteAllId = "19dbc75e-c2e2-444c-a770-ec69d8559fc7" # Directory.ReadWrite.All
+$policyReadAllId         = "246dd0d5-5bd0-4def-940b-0421030a5b68" # Policy.Read.All
 
 # Entra role template IDs
-$globalAdministratorRoleTemplateId = "62e90394-69f5-4237-9190-012177145e10"
-$userAdministratorRoleTemplateId   = "fe930be7-5e62-47db-91af-98c3a49a38b1"
-```
-**Create the governance policy template**
-```
+$globalAdministratorRoleTemplateId = "62e90394-69f5-4237-9190-012177145e10" # Global Administrator
+$userAdministratorRoleTemplateId   = "fe930be7-5e62-47db-91af-98c3a49a38b1" # User Administrator
+
+# Role-assignable group object IDs
+$tgGlobalAdministratorGroupObjectId = "<TG-Global-Administrator-group-object-id>"
+$tgUserAdministratorGroupObjectId   = "<TG-User-Administrator-group-object-id>"
+
+# Multitenant application details
+$multiTenantApplicationDisplayName = "TGMultiTenantMonitor"
+$multiTenantApplicationAppId       = "<TGMultiTenantMonitor-app-id-client-id>"
+$multiTenantEnterpriseAppObjectId  = "<TGMultiTenantMonitor-enterprise-app-service-principal-object-id>"
+
+# Tenant Governance endpoint
+$governancePolicyTemplatesUri = "https://graph.microsoft.com/beta/directory/tenantGovernance/governancePolicyTemplates"
+
+# ================================
+# CONNECT TO MICROSOFT GRAPH
+# ================================
+
+Connect-MgGraph -Scopes $connectScopes
+
+# ================================
+# CREATE GOVERNANCE POLICY TEMPLATE
+# ================================
+
 $body = @{
-    displayName = "HCMultiTenantMonitor Policy Template"
-    description = "Delegates Global Administrator and User Administrator through role-assignable groups and provisions the HCMultiTenantMonitor multi-tenant application."
+    displayName = $policyTemplateDisplayName
+    description = $policyTemplateDescription
 
     multiTenantApplicationsToProvision = @(
         @{
-            appId       = $app.appId
-            objectId    = $servicePrincipal.id
-            displayName = $app.displayName
+            appId       = $multiTenantApplicationAppId
+            objectId    = $multiTenantEnterpriseAppObjectId
+            displayName = $multiTenantApplicationDisplayName
 
             requiredResourceAccesses = @(
                 @{
@@ -499,7 +905,7 @@ $body = @{
                 }
             )
             group = @{
-                id = $tgGlobalAdminGroup.id
+                id = $tgGlobalAdministratorGroupObjectId
             }
         },
         @{
@@ -510,7 +916,7 @@ $body = @{
                 }
             )
             group = @{
-                id = $tgUserAdminGroup.id
+                id = $tgUserAdministratorGroupObjectId
             }
         }
     )
@@ -518,15 +924,121 @@ $body = @{
 
 $template = Invoke-MgGraphRequest `
     -Method POST `
-    -Uri "https://graph.microsoft.com/beta/directory/tenantGovernance/governancePolicyTemplates" `
+    -Uri $governancePolicyTemplatesUri `
     -Body $body `
     -ContentType "application/json"
-
-$template | Select-Object id, displayName, description, version
 ```
 **Microsoft Graph PowerShell SDK cmdlets**
 ```
-under construction
+# ================================
+# CONNECT TO MICROSOFT GRAPH
+# ================================
+
+Import-Module Microsoft.Graph.Beta.Identity.DirectoryManagement
+
+Connect-MgGraph -Scopes `
+    "TenantGovernance-PolicyTemplate.ReadWrite.All", `
+    "Application.Read.All", `
+    "Directory.Read.All"
+
+# ================================
+# VARIABLES / CONSTANTS
+# ================================
+
+# Governance policy template
+$templateDisplayName = "TGMultiTenantMonitor Policy Template"
+$templateDescription = "Delegates Global Administrator and User Administrator through role-assignable groups and provisions the TGMultiTenantMonitor multi-tenant application."
+
+# Role-assignable group object IDs
+$tgGlobalAdminGroupId = "<TG-Global-Administrator-group-object-id>"
+$tgUserAdminGroupId   = "<TG-User-Administrator-group-object-id>"
+
+# Multi-tenant application
+$multiTenantApplicationObjectId    = "<TGMultiTenantMonitor-application-object-id>"
+$multiTenantApplicationAppId       = "<TGMultiTenantMonitor-application-client-id-appId>"
+$multiTenantApplicationDisplayName = "TGMultiTenantMonitor"
+
+# Microsoft Graph resource app ID
+$graphAppId = "00000003-0000-0000-c000-000000000000"
+
+# Microsoft Graph application permission IDs
+$directoryReadWriteAllId = "19dbc75e-c2e2-444c-a770-ec69d8559fc7" # Directory.ReadWrite.All
+$policyReadAllId         = "246dd0d5-5bd0-4def-940b-0421030a5b68" # Policy.Read.All
+
+# Entra role template IDs
+$globalAdministratorRoleTemplateId = "62e90394-69f5-4237-9190-012177145e10" # Global Administrator
+$userAdministratorRoleTemplateId   = "fe930be7-5e62-47db-91af-98c3a49a38b1" # User Administrator
+
+# ================================
+# RESOLVE SERVICE PRINCIPAL
+# ================================
+
+$servicePrincipal = Get-MgBetaServicePrincipal `
+    -Filter "appId eq '$multiTenantApplicationAppId'" `
+    -Property "id,appId,displayName"
+
+# ================================
+# CREATE GOVERNANCE POLICY TEMPLATE
+# ================================
+
+$params = @{
+    displayName = $templateDisplayName
+    description = $templateDescription
+
+    multiTenantApplicationsToProvision = @(
+        @{
+            appId       = $multiTenantApplicationAppId
+            objectId    = $servicePrincipal.Id
+            displayName = $multiTenantApplicationDisplayName
+
+            requiredResourceAccesses = @(
+                @{
+                    resourceAppId = $graphAppId
+                    permissions   = @(
+                        @{
+                            id   = $directoryReadWriteAllId
+                            name = "Directory.ReadWrite.All"
+                            type = "role"
+                        },
+                        @{
+                            id   = $policyReadAllId
+                            name = "Policy.Read.All"
+                            type = "role"
+                        }
+                    )
+                }
+            )
+        }
+    )
+
+    delegatedAdministrationRoleAssignments = @(
+        @{
+            roleTemplates = @(
+                @{
+                    id   = $globalAdministratorRoleTemplateId
+                    name = "Global Administrator"
+                }
+            )
+            group = @{
+                id = $tgGlobalAdminGroupId
+            }
+        },
+        @{
+            roleTemplates = @(
+                @{
+                    id   = $userAdministratorRoleTemplateId
+                    name = "User Administrator"
+                }
+            )
+            group = @{
+                id = $tgUserAdminGroupId
+            }
+        }
+    )
+}
+
+$template = New-MgBetaDirectoryTenantGovernancePolicyTemplate `
+    -BodyParameter $params
 ```
 
 </details>
