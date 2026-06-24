@@ -1522,4 +1522,25 @@ Update-MgBetaDirectoryTenantGovernanceRequest -GovernanceRequestId $governanceRe
 
 </details>
 
+<details>
+<summary>
+
+## Terminate Governance relationship from Governing tenant
+
+</summary>
+
+**Graph call**
+```
+```
+
+**Graph call using PowerShell**
+```
+```
+
+**Microsoft Graph PowerShell SDK cmdlets**
+```
+```
+
+</details>
+
 
