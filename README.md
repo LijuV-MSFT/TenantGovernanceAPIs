@@ -97,11 +97,5 @@ Microsoft Graph beta APIs are subject to change and are not supported for produc
 - Update governance relationship:  
   https://learn.microsoft.com/en-us/graph/api/tenantgovernanceservices-governancerelationship-update?view=graph-rest-beta
 
-- Microsoft Graph PowerShell SDK:  
-  https://learn.microsoft.com/en-us/powershell/microsoftgraph/overview
-
-- Use Microsoft Graph PowerShell with beta APIs:  
-  https://learn.microsoft.com/en-us/powershell/microsoftgraph/use-beta
-
 - Microsoft Graph delegated and application permissions:  
   https://learn.microsoft.com/en-us/graph/auth/auth-concepts#delegated-and-application-permissions
