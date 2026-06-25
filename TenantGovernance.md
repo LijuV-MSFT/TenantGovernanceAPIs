@@ -153,7 +153,12 @@ $group = New-MgGroup `
 
 **Graph call**
 
+<details>
+<summary>
+
 **1 - Create the multi-tenant application registration**
+
+</summary>
 
 Request
 ```
@@ -272,7 +277,15 @@ HTTP/1.1 201 Created
     }
 }
 ```
-**2 — Create the service principal in the home tenant**
+
+</details>
+
+<details>
+<summary>
+
+**2 - Create the service principal in the home tenant**
+
+</summary>
 
 Request
 ```
@@ -339,7 +352,14 @@ Response
 }
 ```
 
-**3 — Get the Microsoft Graph service principal**
+</details>
+
+<details>
+<summary>
+
+**3 - Get the Microsoft Graph service principal**
+
+</summary>
 
 Request
 ```
@@ -359,7 +379,15 @@ Response
     ]
 }
 ```
-**4 — Grant admin consent for Directory.ReadWrite.All**
+
+</details>
+
+<details>
+<summary>
+
+**4 - Grant admin consent for Directory.ReadWrite.All**
+
+</summary>
 
 Request
 ```
@@ -386,7 +414,15 @@ Response
     "resourceId": "94b568db-9c17-4d88-a762-ca99dffc5bad"
 }
 ```
-**5 — Grant admin consent for Policy.Read.All**
+
+</details>
+
+<details>
+<summary>
+
+**5 - Grant admin consent for Policy.Read.All**
+
+</summary>
 
 Request
 ```
@@ -413,7 +449,16 @@ Response
     "resourceId": "94b568db-9c17-4d88-a762-ca99dffc5bad"
 }
 ```
+
+</details>
+
+<details>
+<summary>
+
 **Graph call using PowerShell**
+
+</summary>
+
 ```
 # ================================
 # CONFIGURATION / VARIABLES
@@ -587,7 +632,16 @@ if (-not $policyGrant.id) {
 
 Disconnect-MgGraph | Out-Null
 ```
+
+</details>
+
+<details>
+<summary>
+
 **Microsoft Graph PowerShell SDK cmdlets**
+
+</summary>
+
 ```
 # ================================
 # CONFIGURATION / VARIABLES
@@ -676,6 +730,8 @@ New-MgServicePrincipalAppRoleAssignment `
 
 Disconnect-MgGraph | Out-Null
 ```
+
+</details>
 
 </details>
 
@@ -1205,7 +1261,13 @@ POST https://graph.microsoft.com/beta/directory/tenantGovernance/governanceReque
 }
 ```
 
-Response
+<details>
+<summary>
+
+Response :point_left:
+
+</summary>
+
 ```
 {
     "@context": "https://graph.microsoft.com/beta/$metadata#directory/tenantGovernance/governanceRequests/$entity",
@@ -1271,6 +1333,8 @@ Response
     }
 }
 ```
+
+</details>
 
 **Graph call using PowerShell**
 ```
